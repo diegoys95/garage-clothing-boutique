@@ -32,6 +32,9 @@
   ⚡ LANZAMIENTO WEB: <span class="underline decoration-black/40 underline-offset-2">ENVÍO GRATIS</span> a las 5 provincias +
   <span class="underline decoration-black/40 underline-offset-2">TALLA EXACTA GARANTIZADA</span> (cambio o devolución total en tienda física)
   · Termina en <span class="js-countdown font-bold tabular-nums">--:--:--</span>
+  <a data-track="bar_kit" target="_blank" rel="noopener"
+     href="https://wa.me/593999999999?text=Hola%20GARAGE!%20Quiero%20el%20KIT%20ORIGINAL%20WEB%20(camisa%20Tommy%20%2B%20polo%20Ralph%20Lauren)%20por%20%24109.90"
+     class="ml-1 inline-block rounded-full bg-black px-3 py-0.5 font-bold text-amber-400 transition hover:bg-zinc-800">🎁 Pedir el Kit $109.90</a>
 </div>
 
 <!-- ═══ HEADER ═══ -->
@@ -267,6 +270,34 @@
   const WA = "593999999999";
   const wa = (t) => "https://wa.me/" + WA + "?text=" + encodeURIComponent(t);
 
+  // ── KIT MAFIA (bundle irresistible) ──
+  const kitCard = `
+    <article class="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-amber-400 bg-gradient-to-b from-amber-400/10 to-zinc-900 shadow-lg shadow-amber-400/10 transition hover:border-amber-300">
+      <p class="bg-amber-400 py-1 text-center text-[10px] font-black uppercase tracking-widest text-black">🎁 Kit Mafia · ahorras $14.90</p>
+      <div class="flex aspect-[4/3] items-center justify-center gap-2 bg-gradient-to-br from-zinc-800 to-zinc-900">
+        <span class="font-display text-5xl font-bold text-white/15 group-hover:text-amber-400/25">TH</span>
+        <span class="text-2xl">＋</span>
+        <span class="font-display text-5xl font-bold text-white/15 group-hover:text-amber-400/25">RL</span>
+      </div>
+      <div class="flex flex-1 flex-col p-4">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-amber-400">Tommy Hilfiger ＋ Ralph Lauren</p>
+        <h3 class="mt-0.5 text-sm font-semibold">Kit Original Web: Camisa Oxford ＋ Polo Piqué <span class="ml-1 rounded bg-red-500/15 px-1.5 py-0.5 text-[9px] font-bold text-red-400">SOLO HOY</span></h3>
+        <p class="mt-1 flex items-baseline gap-2">
+          <span class="text-lg font-bold">$109.90</span>
+          <span class="text-xs text-zinc-500 line-through">$124.80</span>
+          <span class="text-[11px] text-emerald-400">envío gratis</span>
+        </p>
+        <div class="mt-2 flex flex-wrap gap-1 text-[10px] text-zinc-400">
+          <span class="rounded border border-amber-400/40 px-1.5 py-0.5">Tallas a tu medida</span>
+          <span class="rounded border border-emerald-400/30 px-1.5 py-0.5 text-emerald-400">Garantía total de calce</span>
+        </div>
+        <a data-track="prod_KIT-WEB" target="_blank" rel="noopener" href="${wa("Hola GARAGE! Quiero el KIT ORIGINAL WEB (camisa Tommy + polo Ralph Lauren) por $109.90. Tallas: ___ y ___")}"
+           class="mt-auto block pt-4">
+          <span class="block rounded-lg bg-amber-400 py-2 text-center text-xs font-black text-black transition group-hover:bg-amber-300">🎁 Pedir mi Kit por WhatsApp</span>
+        </a>
+      </div>
+    </article>`;
+
   const PRODUCTS = [
     { sku: "TH-OXF", abbr: "TH", brand: "Tommy Hilfiger", name: "Camisa Oxford Classic Fit", price: 59.9, sizes: ["S","M","L","XL","XXL"], left: null },
     { sku: "RL-PIQ", abbr: "RL", brand: "Ralph Lauren", name: "Polo Piqué Custom Fit", price: 64.9, sizes: ["S","M","L","XL"], left: 3 },
@@ -278,7 +309,7 @@
     { sku: "LC-1212", abbr: "LC", brand: "Lacoste", name: "Polo L.12.12 Classic", price: 69.9, sizes: ["3","4","5","6","7"], left: 4 },
   ];
 
-  document.getElementById("grid").innerHTML = PRODUCTS.map((p) => `
+  document.getElementById("grid").innerHTML = kitCard + PRODUCTS.map((p) => `
     <article class="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition hover:border-amber-400/50">
       <div class="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
         <span class="font-display text-6xl font-bold text-white/10 group-hover:text-amber-400/20">${p.abbr}</span>
@@ -318,19 +349,54 @@
   };
   tick(); setInterval(tick, 1000);
 
-  // ── Métricas locales del experimento (sin backend) ──
-  const K = "GARAGE_EXP_CLICKS";
-  const bump = (id) => {
+  // ── Telemetría del experimento (liviana, sin backend) ──
+  const K = "GARAGE_EXP_V2";
+  const sid = (() => {
     try {
-      const d = JSON.parse(localStorage.getItem(K) || "{}");
-      d[id] = (d[id] || 0) + 1; d._total = (d._total || 0) + 1;
+      let s = localStorage.getItem("GARAGE_SID");
+      if (!s) { s = Math.random().toString(36).slice(2, 8); localStorage.setItem("GARAGE_SID", s); }
+      return s;
+    } catch (e) { return "anon"; }
+  })();
+  const log = (id) => {
+    try {
+      const d = JSON.parse(localStorage.getItem(K) || '{"events":[]}');
+      d.events.push({ id, t: Date.now() });
       localStorage.setItem(K, JSON.stringify(d));
     } catch (e) {}
   };
-  window.verMetricas = () => JSON.parse(localStorage.getItem(K) || "{}");
+  window.verMetricas = () => {
+    try {
+      const d = JSON.parse(localStorage.getItem(K) || '{"events":[]}');
+      const c = {};
+      d.events.forEach((e) => { c[e.id] = (c[e.id] || 0) + 1; });
+      return { sesion: sid, total: d.events.length, eventos: c, detalle: d.events };
+    } catch (e) { return {}; }
+  };
+  window.exportarMetricas = () => {
+    const d = window.verMetricas();
+    const rows = ["evento,fecha_iso"];
+    (d.detalle || []).forEach((e) => rows.push(`${e.id},${new Date(e.t).toISOString()}`));
+    const blob = new Blob([rows.join("\n")], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `garage-experimento-${d.sesion}.csv`;
+    a.click();
+  };
   document.addEventListener("click", (ev) => {
     const el = ev.target.closest("[data-track]");
-    if (el) bump(el.dataset.track);
+    if (el) log(el.dataset.track);
+  });
+  // Embudo: registra cada sección que el usuario realmente ve
+  const io = new IntersectionObserver(
+    (entries) => entries.forEach((x) => {
+      if (x.isIntersecting) { log("view_" + x.target.id); io.unobserve(x.target); }
+    }),
+    { threshold: 0.4 }
+  );
+  ["ofertas", "tallas", "prueba", "revendedores", "envios"].forEach((id) => {
+    const s = document.getElementById(id);
+    if (s) io.observe(s);
   });
   document.getElementById("year").textContent = new Date().getFullYear();
 </script>
