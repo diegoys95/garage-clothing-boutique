@@ -13,29 +13,37 @@ const MELODY = [440.0, 523.25, 587.33, 659.25, 783.99, 880.0];
 
 export default function AmbientMusic() {
   const [playing, setPlaying] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const ctxRef = useRef<AudioContext | null>(null);
   const masterRef = useRef<GainNode | null>(null);
+  const mutedRef = useRef(false);
   const timersRef = useRef<{ chord?: ReturnType<typeof setInterval>; melody?: ReturnType<typeof setInterval> }>({});
   const stepRef = useRef(0);
 
   const stop = useCallback(() => {
+    mutedRef.current = true;
     if (timersRef.current.chord) clearInterval(timersRef.current.chord);
     if (timersRef.current.melody) clearInterval(timersRef.current.melody);
     timersRef.current = {};
-    if (masterRef.current) {
-      masterRef.current.gain.linearRampToValueAtTime(0.0001, ctxRef.current!.currentTime + 0.5);
+    if (ctxRef.current && masterRef.current) {
+      masterRef.current.gain.linearRampToValueAtTime(0.0001, ctxRef.current.currentTime + 0.5);
+      const ctx = ctxRef.current;
+      setTimeout(() => {
+        ctx.close();
+        if (ctxRef.current === ctx) {
+          ctxRef.current = null;
+          masterRef.current = null;
+        }
+      }, 600);
     }
-    setTimeout(() => {
-      ctxRef.current?.close();
-      ctxRef.current = null;
-      masterRef.current = null;
-    }, 600);
     setPlaying(false);
-    try { localStorage.setItem("garage_music", "off"); } catch {}
   }, []);
 
   const start = useCallback(() => {
-    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    mutedRef.current = false;
+    const Ctx =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const ctx = new Ctx();
     const master = ctx.createGain();
     master.gain.value = 0.09;
@@ -63,7 +71,7 @@ export default function AmbientMusic() {
     };
 
     const pluck = () => {
-      if (Math.random() > 0.55 || !ctxRef.current || !masterRef.current) return;
+      if (Math.random() > 0.55 || !ctxRef.current || !masterRef.current || mutedRef.current) return;
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
@@ -84,17 +92,45 @@ export default function AmbientMusic() {
       stepRef.current += 1;
     }, 4000);
     timersRef.current.melody = setInterval(pluck, 900);
-    setPlaying(true);
-    try { localStorage.setItem("garage_music", "on"); } catch {}
+
+    void ctx.resume().then(() => {
+      if (!mutedRef.current && ctx.state === "running") {
+        setPlaying(true);
+        setBlocked(false);
+      } else if (!mutedRef.current) {
+        setBlocked(true);
+      }
+    });
   }, []);
 
-  useEffect(() => () => stop(), [stop]);
-
-  const toggle = () => (playing ? stop() : start());
+  useEffect(() => {
+    start();
+    const unlock = () => {
+      const ctx = ctxRef.current;
+      if (ctx && ctx.state === "suspended") {
+        void ctx.resume().then(() => {
+          if (!mutedRef.current && ctx.state === "running") {
+            setPlaying(true);
+            setBlocked(false);
+          }
+        });
+      }
+    };
+    window.addEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock);
+    window.addEventListener("touchstart", unlock);
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+      window.removeEventListener("touchstart", unlock);
+      stop();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <button
-      onClick={toggle}
+      onClick={() => (playing ? stop() : start())}
       title="Música ambiental en vivo"
       className={`fixed bottom-5 left-5 z-50 flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold shadow-lg transition ${
         playing
@@ -112,7 +148,7 @@ export default function AmbientMusic() {
           Música en vivo · tocar para silenciar
         </>
       ) : (
-        <>🎵 Activar música en vivo</>
+        <>🎵 {blocked ? "Toca en cualquier parte para activar la música" : "Activar música en vivo"}</>
       )}
     </button>
   );
