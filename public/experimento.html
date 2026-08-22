@@ -122,6 +122,46 @@
     <p class="mt-6 text-center text-xs text-zinc-500">¿No ves tu talla? Escríbenos: consultamos el stock real de ambas tiendas al instante.</p>
   </div>
 </section>
+
+<!-- ═══ WOW: CALCULADORA DE TALLA EXACTA ═══ -->
+<section class="border-t border-white/10">
+  <div class="mx-auto max-w-6xl px-4 py-14">
+    <div class="relative overflow-hidden rounded-3xl border border-amber-400/40 bg-gradient-to-br from-amber-400/10 via-zinc-900 to-zinc-900 p-6 sm:p-10">
+      <div class="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-amber-400/10 blur-3xl"></div>
+      <span class="inline-block rounded-full bg-amber-400 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-black">⚡ Exclusivo del sitio web · nadie más lo tiene</span>
+      <h2 class="mt-3 font-display text-3xl font-bold">Calculadora de Talla Exacta</h2>
+      <p class="mt-2 max-w-2xl text-sm text-zinc-400">
+        Dinos cómo eres y en <strong class="text-zinc-200">10 segundos</strong> sabrás tu talla americana exacta.
+        El resultado llega directo al asesor: tú solo confirmas. Compras sin miedo a equivocarte.
+      </p>
+      <div class="mt-7 grid gap-4 md:grid-cols-4">
+        <label class="block text-[11px] font-bold uppercase tracking-widest text-zinc-500">¿Qué prenda?
+          <select id="fc-prenda" class="mt-1.5 w-full rounded-xl border border-white/15 bg-zinc-950 px-3 py-3 text-sm font-medium normal-case tracking-normal text-zinc-100 focus:border-amber-400 focus:outline-none">
+            <option value="top">Camisa / Polo</option>
+            <option value="jean">Jean / Pantalón</option>
+          </select>
+        </label>
+        <label class="block text-[11px] font-bold uppercase tracking-widest text-zinc-500">Estatura (cm)
+          <input id="fc-altura" type="number" min="140" max="215" placeholder="Ej: 175" class="mt-1.5 w-full rounded-xl border border-white/15 bg-zinc-950 px-3 py-3 text-sm font-medium normal-case tracking-normal text-zinc-100 placeholder:text-zinc-600 focus:border-amber-400 focus:outline-none" />
+        </label>
+        <label class="block text-[11px] font-bold uppercase tracking-widest text-zinc-500">Peso (kg)
+          <input id="fc-peso" type="number" min="45" max="180" placeholder="Ej: 78" class="mt-1.5 w-full rounded-xl border border-white/15 bg-zinc-950 px-3 py-3 text-sm font-medium normal-case tracking-normal text-zinc-100 placeholder:text-zinc-600 focus:border-amber-400 focus:outline-none" />
+        </label>
+        <label class="block text-[11px] font-bold uppercase tracking-widest text-zinc-500">Calce preferido
+          <select id="fc-calce" class="mt-1.5 w-full rounded-xl border border-white/15 bg-zinc-950 px-3 py-3 text-sm font-medium normal-case tracking-normal text-zinc-100 focus:border-amber-400 focus:outline-none">
+            <option value="regular">Regular</option>
+            <option value="ajustado">Ajustado</option>
+            <option value="folio">Folio / holgado</option>
+          </select>
+        </label>
+      </div>
+      <button id="fc-btn" class="mt-6 rounded-full bg-amber-400 px-8 py-3.5 text-sm font-black text-black shadow-lg shadow-amber-400/25 transition hover:bg-amber-300 active:scale-95">
+        ⚡ Calcular mi talla exacta
+      </button>
+      <div id="fc-result" class="hidden"></div>
+    </div>
+  </div>
+</section>
 <!-- ═══ GUÍA DE TALLAS — RESOLUCIÓN DE FRICCIÓN ═══ -->
 <section id="tallas" class="border-t border-white/10">
   <div class="mx-auto max-w-6xl px-4 py-14">
@@ -398,6 +438,53 @@
     const s = document.getElementById(id);
     if (s) io.observe(s);
   });
+  // ── WOW: Calculadora de Talla Exacta ──
+  const CUELLO = { S: "14–14½", M: "15–15½", L: "16–16½", XL: "17–17½", XXL: "18–18½" };
+  document.getElementById("fc-btn").addEventListener("click", () => {
+    log("wow_fitcalc");
+    const prenda = document.getElementById("fc-prenda").value;
+    const h = parseInt(document.getElementById("fc-altura").value, 10);
+    const w = parseInt(document.getElementById("fc-peso").value, 10);
+    const calce = document.getElementById("fc-calce").value;
+    const box = document.getElementById("fc-result");
+    if (!w || !h) {
+      box.className = "mt-6 rounded-2xl border border-red-500/40 bg-red-500/10 p-5 text-sm text-red-300";
+      box.innerHTML = "⚠️ Ingresa tu estatura y peso para calcular tu talla.";
+      box.classList.remove("hidden");
+      return;
+    }
+    let talla, detalle;
+    if (prenda === "top") {
+      const orden = ["S", "M", "L", "XL", "XXL"];
+      const bandas = [[64, "S"], [77, "M"], [91, "L"], [104, "XL"], [999, "XXL"]];
+      let i = orden.indexOf(bandas.find((b) => w <= b[0])[1]);
+      if (calce === "ajustado") i = Math.max(0, i - 1);
+      if (calce === "folio") i = Math.min(4, i + 1);
+      talla = orden[i];
+      detalle = `Cuello ${CUELLO[talla]}" · pecho regular`;
+    } else {
+      const wb = [[60, "30"], [70, "32"], [82, "34"], [94, "36"], [105, "38"], [999, "40"]];
+      const cintura = wb.find((b) => w <= b[0])[1];
+      let largo = h < 170 ? "30" : h <= 185 ? "32" : "34";
+      talla = `${cintura}x${largo}`;
+      detalle = `Cintura ${cintura}" · largo ${largo}"${h > 188 ? ' (medidas especiales: el asesor la verifica en tienda)' : ""}`;
+    }
+    const msg = `Hola GARAGE! La calculadora web dice que mi talla es ${talla} (${prenda === "top" ? "camisa/polo" : "jean"}, ${w} kg, ${h} cm, calce ${calce}). Quiero confirmarla con un asesor y pedir: ___`;
+    box.className = "mt-6 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-6";
+    box.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-widest text-emerald-400">Tu talla exacta GARAGE es</p>
+          <p class="mt-1 font-display text-4xl font-bold text-white">${talla} <span class="text-sm font-normal text-zinc-400">· ${detalle}</span></p>
+          <p class="mt-2 text-xs text-zinc-400">✅ El asesor valida esta talla con la prenda en mano antes de despachar. Si aun así no calza: cambio gratis o devolución total.</p>
+        </div>
+        <a data-track="wow_fitcalc_wa" target="_blank" rel="noopener" href="${wa(msg)}"
+           class="rounded-full bg-emerald-500 px-6 py-3 text-sm font-black text-black transition hover:bg-emerald-400">💬 Confirmar y pedir mi talla ${talla}</a>
+      </div>`;
+    box.classList.remove("hidden");
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
   document.getElementById("year").textContent = new Date().getFullYear();
 </script>
 
