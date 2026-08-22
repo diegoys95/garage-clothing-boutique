@@ -131,6 +131,12 @@ export type Chat = {
   createdAt: string;
 };
 
+export type TrackEvent = {
+  id: string;
+  t: number;
+  sid?: string;
+};
+
 export type DbShape = {
   products: Product[];
   inventory: InventoryRow[];
@@ -138,4 +144,5 @@ export type DbShape = {
   resellers: Reseller[];
   chats: Chat[];
   payments: Payment[];
+  events: TrackEvent[];
 };

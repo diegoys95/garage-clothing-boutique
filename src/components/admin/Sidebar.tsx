@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 const links = [
   { href: "/admin", label: "Dashboard", icon: "📊" },
+  { href: "/admin/experimento", label: "Experimento MVP", icon: "🧪" },
   { href: "/admin/chats", label: "Chats / Asesorías", icon: "💬" },
   { href: "/admin/despachos", label: "Pedidos y Despachos", icon: "🚚" },
   { href: "/admin/pagos", label: "Pagos y Cartera", icon: "💵" },

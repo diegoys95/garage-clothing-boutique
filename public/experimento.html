@@ -451,6 +451,14 @@
       d.events.push({ id, t: Date.now() });
       localStorage.setItem(K, JSON.stringify(d));
     } catch (e) {}
+    try {
+      fetch("/api/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, sid }),
+        keepalive: true,
+      }).catch(() => {});
+    } catch (e) {}
   };
   window.verMetricas = () => {
     try {

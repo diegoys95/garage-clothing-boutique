@@ -172,7 +172,9 @@ async function writeDbFile(db: DbShape) {
 export async function readDb(): Promise<DbShape> {
   try {
     const raw = await fs.readFile(DB_PATH, "utf8");
-    return JSON.parse(raw) as DbShape;
+    const parsed = JSON.parse(raw) as DbShape;
+    if (!parsed.events) parsed.events = [];
+    return parsed;
   } catch {
     const orders = buildOrders();
     const db: DbShape = {
@@ -182,6 +184,7 @@ export async function readDb(): Promise<DbShape> {
       orders,
       chats: CHATS,
       payments: buildPayments(orders),
+      events: [],
     };
     await writeDbFile(db);
     return db;
