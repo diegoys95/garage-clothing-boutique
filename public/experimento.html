@@ -276,6 +276,53 @@
       <div class="rounded-2xl border border-white/10 bg-zinc-950 p-6"><p class="font-display text-lg font-semibold text-amber-400">2 · Coordina la entrega</p><p class="mt-2 text-sm text-zinc-400">Recojo gratis en tiendas Ambato/Riobamba o envío coordinado a tu provincia.</p></div>
       <div class="rounded-2xl border border-white/10 bg-zinc-950 p-6"><p class="font-display text-lg font-semibold text-amber-400">3 · Paga como prefieras</p><p class="mt-2 text-sm text-zinc-400">Transferencia, depósito o <strong class="text-zinc-200">efectivo contra entrega</strong>. Sin pagos anticipados.</p></div>
     </div>
+
+    <!-- ═══ NOVEDAD: PAGO DIRECTO QR BANCO PICHINCHA ═══ -->
+    <div class="mt-10 overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-zinc-900 via-zinc-900 to-emerald-500/5 p-6 sm:p-8">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="rounded-full bg-emerald-500 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-black">Novedad · sin carrito</span>
+        <h3 class="font-display text-2xl font-bold">Pago directo Banco Pichincha en 3 toques</h3>
+      </div>
+      <p class="mt-2 max-w-2xl text-sm text-zinc-400">
+        Nada de tarjetas ni registros: <strong class="text-zinc-200">genera tu QR</strong>, págalo desde tu app
+        ¡Acha! o banca web del Pichincha, y envía el comprobante. Un asesor confirma y despacha el mismo día.
+      </p>
+      <button id="pay-btn" class="mt-6 rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-black text-black shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-400 active:scale-95">
+        🔐 Generar mi QR de pago
+      </button>
+
+      <div id="pay-result" class="mt-6 hidden">
+        <div class="grid gap-6 md:grid-cols-[auto,1fr]">
+          <div class="mx-auto w-fit rounded-2xl bg-white p-3 shadow-xl">
+            <img id="pay-qr" src="" alt="QR de pago demo" width="260" height="260" class="block" />
+            <p class="mt-2 text-center text-[10px] font-bold uppercase tracking-widest text-black">Escanea con ¡Acha! · Banca Web · app móvil</p>
+          </div>
+          <div>
+            <div class="space-y-2.5 text-sm">
+              <div class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-zinc-950 px-4 py-2.5"><span class="text-zinc-400">Banco</span><strong>Banco Pichincha <span class="ml-1 rounded bg-amber-400/15 px-1.5 py-0.5 text-[9px] font-bold text-amber-400">DEMO</span></strong></div>
+              <div class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-zinc-950 px-4 py-2.5"><span class="text-zinc-400">Cuenta de ahorros</span><span class="flex items-center gap-2"><strong>2200 1234 56</strong><button data-copy="2200123456" class="rounded border border-white/15 px-2 py-0.5 text-[10px] hover:border-emerald-400">📋 Copiar</button></span></div>
+              <div class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-zinc-950 px-4 py-2.5"><span class="text-zinc-400">Titular</span><strong>GARAGE CLOTHING BOUTIQUE</strong></div>
+              <div class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-zinc-950 px-4 py-2.5"><span class="text-zinc-400">RUC/Cédula</span><span class="flex items-center gap-2"><strong>1801234567001</strong><button data-copy="1801234567001" class="rounded border border-white/15 px-2 py-0.5 text-[10px] hover:border-emerald-400">📋 Copiar</button></span></div>
+              <div class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-zinc-950 px-4 py-2.5"><span class="text-zinc-400">Referencia</span><strong class="text-amber-400">EXP-WEB</strong></div>
+            </div>
+            <ol class="mt-4 space-y-1.5 text-xs text-zinc-400">
+              <li><strong class="text-emerald-400">1.</strong> Escanea el QR o transfiere manual con los datos de arriba (el monto lo indica tu asesor)</li>
+              <li><strong class="text-emerald-400">2.</strong> Guarda el comprobante de la transacción</li>
+              <li><strong class="text-emerald-400">3.</strong> Envíalo por WhatsApp → confirmamos y despachamos</li>
+            </ol>
+            <a data-track="pay_comprobante_wa" target="_blank" rel="noopener"
+               href="https://wa.me/593999999999?text=Hola%20GARAGE!%20Ya%20realice%20la%20transferencia%20al%20Banco%20Pichincha%20por%20mi%20pedido.%20Adjunto%20comprobante.%20Mi%20nombre:%20___%20y%20lo%20que%20pedi:%20___"
+               class="mt-5 block rounded-xl bg-emerald-500 py-3 text-center text-sm font-black text-black transition hover:bg-emerald-400">
+              📤 Enviar comprobante por WhatsApp
+            </a>
+            <p class="mt-3 text-[11px] leading-relaxed text-zinc-600">
+              Demo académica (Lean Startup Fase 2): el QR y los datos son ilustrativos, ningún cargo real.
+              Al validar el experimento se conecta una pasarela real (¡Acha! / Deuna / Kushki).
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -438,6 +485,25 @@
     const s = document.getElementById(id);
     if (s) io.observe(s);
   });
+  // ── Novedad: QR de pago Banco Pichincha (demo) ──
+  document.getElementById("pay-btn").addEventListener("click", () => {
+    log("pay_qr_gen");
+    const data = encodeURIComponent("BANCO PICHINCHA | CTA AHORROS 2200123456 | GARAGE CLOTHING BOUTIQUE | REF: EXP-WEB | MONTO: segun pedido | QR DEMOSTRATIVO - sin cargo real");
+    document.getElementById("pay-qr").src = "https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=6&ecc=M&data=" + data;
+    const box = document.getElementById("pay-result");
+    box.classList.remove("hidden");
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+  document.querySelectorAll("[data-copy]").forEach((b) =>
+    b.addEventListener("click", () => {
+      try { navigator.clipboard.writeText(b.dataset.copy); } catch (e) {}
+      log("pay_copy");
+      const prev = b.textContent;
+      b.textContent = "✓ Copiado";
+      setTimeout(() => (b.textContent = prev), 1500);
+    })
+  );
+
   // ── WOW: Calculadora de Talla Exacta ──
   const CUELLO = { S: "14–14½", M: "15–15½", L: "16–16½", XL: "17–17½", XXL: "18–18½" };
   document.getElementById("fc-btn").addEventListener("click", () => {
