@@ -11,7 +11,7 @@ import type {
   StoreId,
 } from "./types";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+const DATA_DIR = process.env.VERCEL ? "/tmp/garage-data" : path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "garage-db.json");
 
 const daysAgo = (d: number, h = 10) => {
