@@ -6,6 +6,7 @@ import SizeGuide from "@/components/SizeGuide";
 import Shipping from "@/components/Shipping";
 import Resellers from "@/components/Resellers";
 import Payment from "@/components/Payment";
+import AmbientMusic from "@/components/AmbientMusic";
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
       <Shipping />
       <Resellers />
       <Payment />
+      <AmbientMusic />
     </>
   );
 }
